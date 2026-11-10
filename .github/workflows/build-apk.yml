@@ -49,6 +49,26 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      # --- بخش طلایی: دانلود خودکار پوشه گم‌شده android از گیت‌هاب ---
+      - name: Download Fresh Android Folder (Fix missing files)
+        run: |
+          cd ..
+          mkdir temp-android
+          cd temp-android
+          # ایجاد یک پروژه خالی Capacitor برای استخراج پوشه android سالم
+          npm init -y
+          npm install @capacitor/core@5 @capacitor/cli@5 @capacitor/android@5
+          npx cap init "temp" "ir.temp.app" --web-dir=www
+          mkdir www
+          npx cap add android
+          
+          # کپی کردن پوشه android سالم روی پروژه اصلی
+          rm -rf ../my-car/android
+          cp -r android ../my-car/android
+          cd ..
+          rm -rf temp-android
+      # -------------------------------------------------------------
+
       - name: Build APK with Gradle
         run: |
           cd android
@@ -60,4 +80,3 @@ jobs:
         with:
           name: my-car-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          
