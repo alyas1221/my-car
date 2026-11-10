@@ -31,10 +31,8 @@ jobs:
           unzip -q commandlinetools-linux-11076708_latest.zip -d cmdline-tools
           mv cmdline-tools/cmdline-tools cmdline-tools/latest
           export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export ANDROID_HOME=$HOME/android-sdk
           export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_HOME=" >> $GITHUB_ENV
           echo "PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools" >> $GITHUB_ENV
 
       - name: Accept Android Licenses
@@ -66,6 +64,11 @@ jobs:
           cp -r android ../my-car/android
           cd ..
           rm -rf temp-android
+
+      - name: Fix SDK Path for Gradle
+        run: |
+          echo "sdk.dir=$HOME/android-sdk" > android/local.properties
+          echo "sdk.dir=$HOME/android-sdk" > android/app/local.properties
 
       - name: Build APK with Gradle
         run: |
