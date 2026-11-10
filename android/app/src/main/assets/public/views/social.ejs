@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شبکه اجتماعی | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .post { background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:10px; }
+    .post-img { max-width:100%; border-radius:4px; margin:6px 0; }
+    .post-meta { font-size:11.5px; color:#64748b; }
+    .post-actions { display:flex; gap:12px; margin-top:8px; font-size:12px; }
+    .like-btn { background:none; border:none; cursor:pointer; padding:0; color:#64748b; font-size:13px; }
+    .like-btn.liked { color:#ef4444; }
+    .comments { margin-top:8px; padding-top:8px; border-top:1px solid #f1f5f9; font-size:12px; }
+    .comment { padding:3px 0; }
+    .comment b { color:#2563eb; }
+    .emoji-bar { margin-top:4px; font-size:15px; cursor:pointer; user-select:none; }
+    .emoji-bar span { padding:2px 4px; }
+  </style>
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/social" class="active">شبکه اجتماعی</a>
+      <a href="/forum">تالار گفتگو</a>
+      <a href="/profile">پروفایل</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:10px;">پست جدید</h3>
+        <form action="/social/post" method="POST" enctype="multipart/form-data">
+          <div class="form-group"><label>کپشن</label><textarea name="caption" rows="2" placeholder="توضیح عکس..."></textarea></div>
+          <div class="form-group"><label>عکس</label><input type="file" name="image" accept="image/*" required></div>
+          <button type="submit">انتشار</button>
+        </form>
+      </div>
+      <div style="margin-top:12px;">
+        <% if (posts.length === 0) { %>
+        <div class="card"><p style="font-size:12px;color:#64748b;">هنوز پستی نیست.</p></div>
+        <% } %>
+        <% posts.forEach(p => { %>
+        <div class="post">
+          <div class="post-meta"><b><%= p.first_name %> <%= p.last_name %></b> - <%= p.created_at %></div>
+          <% if (p.image) { %><img class="post-img" src="/uploads/posts/<%= p.image %>" alt=""><% } %>
+          <div style="font-size:13px;margin:6px 0;"><%= p.caption || "" %></div>
+          <div class="post-actions">
+            <button class="like-btn <%= p.liked ? "liked" : "" %>" onclick="likePost(<%= p.id %>)">
+              ♥ <span id="like-count-<%= p.id %>"><%= p.likes %></span>
+            </button>
+            <span style="color:#64748b;">💬 <%= p.comments_count %></span>
+          </div>
+          <div class="comments">
+            <% p.comments.forEach(c => { %>
+            <div class="comment"><b><%= c.first_name %>:</b> <%= c.text %></div>
+            <% }) %>
+            <form onsubmit="return addComment(event, <%= p.id %>)" style="display:flex;gap:4px;margin-top:6px;">
+              <input type="text" name="text" placeholder="نظر..." required style="flex:1;">
+              <button type="submit" style="padding:4px 8px;font-size:11.5px;">ارسال</button>
+            </form>
+            <div class="emoji-bar">
+              <span onclick="insertEmoji(this.parentNode.previousElementSibling, '😀')">😀</span>
+              <span onclick="insertEmoji(this.parentNode.previousElementSibling, '👍')">👍</span>
+              <span onclick="insertEmoji(this.parentNode.previousElementSibling, '❤️')">❤️</span>
+              <span onclick="insertEmoji(this.parentNode.previousElementSibling, '🔥')">🔥</span>
+              <span onclick="insertEmoji(this.parentNode.previousElementSibling, '😍')">😍</span>
+            </div>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\""font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+    async function likePost(id) {
+      const r = await fetch("/social/like/" + id, { method: "POST" });
+      const d = await r.json();
+      const el = document.getElementById("like-count-" + id);
+      if (el) el.textContent = d.count;
+    }
+    async function addComment(e, id) {
+      e.preventDefault();
+      const input = e.target.querySelector("input[name=text]");
+      const r = await fetch("/social/comment/" + id, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ text: input.value }) });
+      if (r.ok) location.reload();
+    }
+    function insertEmoji(input, emoji) {
+      if (input && input.tagName === "INPUT") { input.value += emoji; input.focus(); }
+    }
+  </script>
+</body>
+</html>

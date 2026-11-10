@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل مدیریت | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">مدیریت</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/admin" class="active">پنل مدیر</a>
+      <a href="/admin/users">کاربران</a>
+      <a href="/admin/logs">لاگ مودریشن</a>
+      <a href="/admin/backup">بکاپ‌گیری</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:8px;">🔔 بنر تبلیغاتی (فقط مدیر ارشد)</h3>
+        <% if (user.role === "super_admin") { %>
+        <form action="/admin/banner" method="POST">
+          <div class="form-group"><label>متن بنر</label><input type="text" name="text" value="<%= banner.text || "" %>"></div>
+          <div class="form-group"><label>لینک</label><input type="text" name="link" value="<%= banner.link || "" %>"></div>
+          <button type="submit">ذخیره بنر</button>
+        </form>
+        <% } else { %>
+        <p style="font-size:12px;color:#94a3b8;">فقط مدیر ارشد می‌تواند بنر تنظیم کند.</p>
+        <% } %>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:8px;">⚙️ تنظیمات ویژگی‌ها</h3>
+        <div style="font-size:12px;">
+          <% Object.entries(features).forEach(([k,v]) => { %>
+          <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;">
+            <span><%= k %></span>
+            <form action="/admin/toggle" method="POST" style="margin:0;">
+              <input type="hidden" name="key" value="<%= k %>">
+              <button type="submit" style="padding:2px 8px;font-size:11px;background:<%= v ? "#22c55e" : "#94a3b8" %>;"><%= v ? "فعال" : "غیرفعال" %></button>
+            </form>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:8px;">📊 آمار</h3>
+        <div style="font-size:12px;">
+          <div>👥 کاربران: <%= stats.users %></div>
+          <div>🚗 خودروها: <%= stats.vehicles %></div>
+          <div>🔧 سرویس‌ها: <%= stats.services %></div>
+          <div>📸 پست‌ها: <%= stats.posts %></div>
+          <div>💬 پیام‌ها: <%= stats.messages %></div>
+          <div>🚫 لاگ مودریشن: <%= stats.logs %></div>
+        </div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+  </script>
+</body>
+</html>

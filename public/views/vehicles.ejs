@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>خودروهای من | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles" class="active">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/social">شبکه اجتماعی</a>
+      <a href="/forum">تالار گفتگو</a>
+      <a href="/profile">پروفایل</a>
+    </aside>
+    <main>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        <strong style="font-size:14px;">خودروهای من</strong>
+        <button onclick="document.getElementById('addForm').style.display='block'" style="font-size:12px;padding:4px 10px;">+ افزودن خودرو</button>
+      </div>
+      <div id="addForm" class="card" style="display:none;margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:10px;">خودرو جدید</h3>
+        <form action="/vehicles/add" method="POST" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col"><div class="form-group"><label>نوع</label><select name="type"><option value="car">ماشین</option><option value="motorcycle">موتور</option></select></div></div>
+            <div class="col"><div class="form-group"><label>مدل</label><input type="text" name="model" required></div></div>
+          </div>
+          <div class="row">
+            <div class="col"><div class="form-group"><label>سال تولید</label><input type="text" name="year" placeholder="1402"></div></div>
+            <div class="col"><div class="form-group"><label>پلاک</label><input type="text" name="plate" placeholder="12ب345-67"></div></div>
+          </div>
+          <div class="form-group"><label>کارکرد (کیلومتر)</label><input type="number" name="initial_km" placeholder="0"></div>
+          <div class="form-group"><label>وضعیت بیمه</label><select name="insurance_status"><option value="valid">معتبر</option><option value="expired">منقضی</option><option value="none">ندارد</option></select></div>
+          <div class="form-group"><label>عکس خودرو (اختیاری)</label><input type="file" name="photo" accept="image/*"></div>
+          <div class="form-group"><label>عکس پلاک (اختیاری)</label><input type="file" name="plate_photo" accept="image/*"></div>
+          <button type="submit">ثبت خودرو</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:8px;">لیست خودروها</h3>
+        <% if (vehicles.length === 0) { %>
+        <p style="font-size:12px;color:#64748b;">هنوز خودرویی ثبت نکرده‌اید.</p>
+        <% } else { %>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th align="right">نوع</th><th align="right">مدل</th><th align="right">سال</th><th align="right">پلاک</th><th align="right">کیلومتر</th></tr>
+          <% vehicles.forEach(v => { %>
+          <tr><td style="padding:6px 0;"><%= v.type === "car" ? "ماشین" : "موتور" %></td><td><%= v.model %></td><td><%= v.year || "-" %></td><td><%= v.plate || "-" %></td><td><%= v.initial_km %></td></tr>
+          <% }) %>
+        </table>
+        <% } %>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+  </script>
+</body>
+</html>

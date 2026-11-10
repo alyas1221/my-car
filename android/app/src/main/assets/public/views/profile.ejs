@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پروفایل | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/social">شبکه اجتماعی</a>
+      <a href="/forum">تالار گفتگو</a>
+      <a href="/profile" class="active">پروفایل</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:10px;">اطلاعات من</h3>
+        <form action="/profile/update" method="POST" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col"><div class="form-group"><label>نام</label><input type="text" name="firstName" value="<%= profile.first_name %>" required></div></div>
+            <div class="col"><div class="form-group"><label>نام خانوادگی</label><input type="text" name="lastName" value="<%= profile.last_name %>" required></div></div>
+          </div>
+          <div class="form-group"><label>شماره تماس</label><input type="text" name="phone" value="<%= profile.phone %>" readonly style="background:#f1f5f9;"></div>
+          <div class="form-group"><label>آدرس</label><textarea name="address" rows="2"><%= profile.address || "" %></textarea></div>
+          <div class="form-group"><label>عکس پروفایل (اختیاری)</label><input type="file" name="avatar" accept="image/*"></div>
+          <button type="submit">ذخیره</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:8px;">تغییر رمز عبور</h3>
+        <form action="/profile/password" method="POST">
+          <div class="form-group"><label>رمز فعلی</label><input type="password" name="current" required></div>
+          <div class="form-group"><label>رمز جدید</label><input type="password" name="newpass" required></div>
+          <div class="form-group"><label>تکرار رمز جدید</label><input type="password" name="newpass2" required></div>
+          <button type="submit">تغییر رمز</button>
+        </form>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+  </script>
+</body>
+</html>

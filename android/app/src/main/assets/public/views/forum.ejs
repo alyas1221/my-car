@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تالار گفتگو | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/social">شبکه اجتماعی</a>
+      <a href="/forum" class="active">تالار گفتگو</a>
+      <a href="/profile">پروفایل</a>
+    </aside>
+    <main>
+      <% if (banner && banner.text) { %><div class="card" style="background:#fef3c7;border-color:#fbbf24;margin-bottom:10px;font-size:12.5px;text-align:center;"><% if (banner.link) { %><a href="<%= banner.link %>" style="color:#92400e;"><%= banner.text %></a><% } else { %><span style="color:#92400e;"><%= banner.text %></span><% } %></div><% } %>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:14px;">اتاق‌های گفتگو</strong>
+          <button onclick="document.getElementById('newRoom').style.display='block'" style="font-size:12px;padding:4px 10px;">+ اتاق جدید</button>
+        </div>
+        <div id="newRoom" style="display:none;margin-top:10px;">
+          <form action="/forum/room" method="POST" style="display:flex;gap:4px;">
+            <input type="text" name="name" placeholder="نام اتاق..." required style="flex:1;">
+            <button type="submit" style="padding:4px 12px;font-size:12px;">ایجاد</button>
+          </form>
+        </div>
+        <div style="margin-top:10px;">
+          <% if (rooms.length === 0) { %>
+          <p style="font-size:12px;color:#64748b;">هنوز اتاقی ساخته نشده.</p>
+          <% } %>
+          <% rooms.forEach(r => { %>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;">
+            <a href="/forum/room/<%= r.id %>" style="font-size:13px;"><%= r.name %></a>
+            <span style="font-size:11px;color:#94a3b8;"><%= r.msg_count %> پیام</span>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+  </script>
+</body>
+</html>

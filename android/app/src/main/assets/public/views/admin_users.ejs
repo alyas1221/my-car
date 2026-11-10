@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>کاربران | مدیریت</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">مدیریت</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/admin">پنل مدیر</a>
+      <a href="/admin/users" class="active">کاربران</a>
+      <a href="/admin/logs">لاگ مودریشن</a>
+      <a href="/admin/backup">بکاپ‌گیری</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:8px;">لیست کاربران</h3>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th align="right">#</th><th align="right">نام</th><th align="right">شماره</th><th align="right">نقش</th><th align="right">تغییر</th></tr>
+          <% users.forEach(u => { %>
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:4px;"><%= u.id %></td>
+            <td><%= u.first_name %> <%= u.last_name %></td>
+            <td><%= u.phone %></td>
+            <td><%= u.role %></td>
+            <td><form action="/admin/user/role" method="POST" style="display:flex;gap:2px;">
+              <input type="hidden" name="user_id" value="<%= u.id %>">
+              <select name="role" style="font-size:11px;padding:2px;">
+                <option value="user" <%= u.role==="user"?"selected":"" %>>user</option>
+                <option value="mechanic" <%= u.role==="mechanic"?"selected":"" %>>mechanic</option>
+                <option value="admin" <%= u.role==="admin"?"selected":"" %>>admin</option>
+                <option value="super_admin" <%= u.role==="super_admin"?"selected":"" %>>super_admin</option>
+              </select>
+              <button type="submit" style="padding:2px 6px;font-size:11px;">✓</button>
+            </form></td>
+          </tr>
+          <% }) %>
+        </table>
+      </div>
+    </main>
+    <aside class="sidebar"><div style="font-size:11px;color:#94a3b8;">—</div></aside>
+  </div>
+</body>
+</html>

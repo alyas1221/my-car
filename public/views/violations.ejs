@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استعلام خلافی | My-Car</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/violations" class="active">استعلام خلافی</a>
+      <a href="/social">شبکه اجتماعی</a>
+      <a href="/forum">تالار گفتگو</a>
+      <a href="/profile">پروفایل</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:8px;">درخواست استعلام خلافی</h3>
+        <form action="/violations/add" method="POST">
+          <div class="row">
+            <div class="col"><div class="form-group"><label>نوع پلاک</label><select name="plate_type" required><option value="car">ماشین</option><option value="motorcycle">موتور</option></select></div></div>
+            <div class="col"><div class="form-group"><label>پلاک</label><input type="text" name="plate" placeholder="12ب345-67" required></div></div>
+          </div>
+          <button type="submit">ارسال درخواست</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:10px;">
+        <h3 style="font-size:13px;margin-bottom:8px;">درخواست‌های من</h3>
+        <% if (requests.length === 0) { %>
+        <p style="font-size:12px;color:#94a3b8;">هنوز درخواستی ندادید.</p>
+        <% } else { %>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th align="right">#</th><th align="right">نوع</th><th align="right">پلاک</th><th align="right">وضعیت</th><th align="right">نتیجه</th><th align="right">تاریخ</th></tr>
+          <% requests.forEach(r => { %>
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:4px;"><%= r.id %></td>
+            <td><%= r.plate_type === "car" ? "ماشین" : "موتور" %></td>
+            <td><%= r.plate %></td>
+            <td><%= r.status === "pending" ? "در انتظار" : "پاسخ داده شد" %></td>
+            <td><%= r.result || "-" %></td>
+            <td><%= r.created_at %></td>
+          </tr>
+          <% }) %>
+        </table>
+        <% } %>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+  </script>
+</body>
+</html>

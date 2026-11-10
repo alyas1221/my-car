@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استعلام‌ها | مدیریت</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">مدیریت</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/admin">پنل مدیر</a>
+      <a href="/admin/users">کاربران</a>
+      <a href="/admin/violations" class="active">استعلام‌ها</a>
+      <a href="/admin/logs">لاگ مودریشن</a>
+      <a href="/admin/backup">بکاپ‌گیری</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:8px;">استعلام‌های خلافی</h3>
+        <% if (requests.length === 0) { %>
+        <p style="font-size:12px;color:#94a3b8;">درخواستی وجود ندارد.</p>
+        <% } else { %>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th align="right">#</th><th align="right">کاربر</th><th align="right">نوع</th><th align="right">پلاک</th><th align="right">وضعیت</th><th align="right">پاسخ</th><th align="right">تاریخ</th></tr>
+          <% requests.forEach(r => { %>
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:4px;"><%= r.id %></td>
+            <td><%= r.first_name %> <%= r.last_name %></td>
+            <td><%= r.plate_type === "car" ? "ماشین" : "موتور" %></td>
+            <td><%= r.plate %></td>
+            <td><%= r.status === "pending" ? "در انتظار" : "پاسخ داده شد" %></td>
+            <td>
+              <% if (r.status === "pending") { %>
+              <form action="/admin/violations/answer" method="POST" style="display:flex;gap:2px;">
+                <input type="hidden" name="id" value="<%= r.id %>">
+                <input type="text" name="result" placeholder="نتیجه..." required style="font-size:11px;padding:2px;">
+                <button type="submit" style="padding:2px 6px;font-size:11px;">✓</button>
+              </form>
+              <% } else { %>
+              <%= r.result || "-" %>
+              <% } %>
+            </td>
+            <td><%= r.created_at %></td>
+          </tr>
+          <% }) %>
+        </table>
+        <% } %>
+      </div>
+    </main>
+    <aside class="sidebar"></aside>
+  </div>
+</body>
+</html>

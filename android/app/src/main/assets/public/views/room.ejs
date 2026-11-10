@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= room.name %> | تالار</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">منوی اصلی</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/vehicles">خودروهای من</a>
+      <a href="/services">سرویس‌ها</a>
+      <a href="/social">شبکه اجتماعی</a>
+      <a href="/forum" class="active">تالار گفتگو</a>
+      <a href="/profile">پروفایل</a>
+    </aside>
+    <main>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:14px;"><%= room.name %></strong>
+          <a href="/forum" style="font-size:12px;">→ بازگشت</a>
+        </div>
+        <div id="messages" style="max-height:400px;overflow-y:auto;padding:6px;background:#f8fafc;border-radius:4px;font-size:12.5px;">
+          <% messages.forEach(m => { %>
+          <div style="padding:4px 0;border-bottom:1px solid #f1f5f9;"><b><%= m.first_name %>:</b> <%= m.text %></div>
+          <% }) %>
+        </div>
+        <form id="msgForm" style="display:flex;gap:4px;margin-top:8px;">
+          <input type="text" id="msgInput" placeholder="پیام..." required style="flex:1;">
+          <button type="submit" style="padding:4px 12px;font-size:12px;">ارسال</button>
+        </form>
+        <div class="emoji-bar" style="margin-top:6px;font-size:16px;cursor:pointer;">
+          <span onclick="addEmoji('😀')">😀</span>
+          <span onclick="addEmoji('👍')">👍</span>
+          <span onclick="addEmoji('❤️')">❤️</span>
+          <span onclick="addEmoji('🔥')">🔥</span>
+        </div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:12px;margin-bottom:6px;">کاربران آنلاین</div>
+      <div class="online-list" id="onlineList"><div style="font-size:11px;color:#94a3b8;">در حال اتصال...</div></div>
+    </aside>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const ROOM_ID = <%= room.id %>;
+    const socket = io("https://car.dedhban.ir", { path: "/socket.io/" });
+    socket.emit("user:join", { name: "<%= user.firstName %> <%= user.lastName %>", role: "<%= user.role %>" });
+    socket.emit("room:join", { roomId: ROOM_ID });
+    socket.on("users:online", (users) => {
+      const el = document.getElementById("onlineList");
+      el.innerHTML = users.map(u => `<div class="online-item"><span class="online-dot"></span><span>${u.name}</span></div>`).join("") || "<div style=\"font-size:11px;color:#94a3b8;\">کسی آنلاین نیست</div>";
+    });
+    socket.on("moderation:blocked", (d) => { alert("محتوای شما مجاز نیست: " + d.reason); });
+    socket.on("room:message", (msg) => {
+      if (msg.roomId !== ROOM_ID) return;
+      const box = document.getElementById("messages");
+      const div = document.createElement("div");
+      div.style.cssText = "padding:4px 0;border-bottom:1px solid #f1f5f9;";
+      div.innerHTML = "<b>" + msg.name + ":</b> " + msg.text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    });
+    document.getElementById("msgForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.getElementById("msgInput");
+      if (!input.value.trim()) return;
+      socket.emit("room:message", { roomId: ROOM_ID, text: input.value });
+      input.value = "";
+    });
+    function addEmoji(emoji) { const i = document.getElementById("msgInput"); i.value += emoji; i.focus(); }
+  </script>
+</body>
+</html>

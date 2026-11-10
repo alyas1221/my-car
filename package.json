@@ -1,0 +1,30 @@
+{
+  "name": "my-car",
+  "version": "0.1.0",
+  "description": "My-Car vehicle service management platform",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.7.8",
+    "@capacitor/cli": "^5.7.8",
+    "@capacitor/core": "^5.7.8",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.3.0",
+    "connect-sqlite3": "^0.9.18",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "author": "dedhban",
+  "license": "MIT"
+}

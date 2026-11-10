@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لاگ مودریشن | مدیریت</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dash">
+    <aside class="sidebar">
+      <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">مدیریت</div>
+      <a href="/dashboard">داشبورد</a>
+      <a href="/admin">پنل مدیر</a>
+      <a href="/admin/users">کاربران</a>
+      <a href="/admin/logs" class="active">لاگ مودریشن</a>
+      <a href="/admin/backup">بکاپ‌گیری</a>
+    </aside>
+    <main>
+      <div class="card">
+        <h3 style="font-size:13px;margin-bottom:8px;">لاگ مودریشن</h3>
+        <% if (logs.length === 0) { %>
+        <p style="font-size:12px;color:#94a3b8;">لاگی وجود ندارد.</p>
+        <% } else { %>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th align="right">#</th><th align="right">کاربر</th><th align="right">محتوا</th><th align="right">دلیل</th><th align="right">زمان</th></tr>
+          <% logs.forEach(l => { %>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:4px;"><%= l.id %></td><td><%= l.user_id %></td><td><%= l.content %></td><td><%= l.reason %></td><td><%= l.created_at %></td></tr>
+          <% }) %>
+        </table>
+        <% } %>
+      </div>
+    </main>
+    <aside class="sidebar"></aside>
+  </div>
+</body>
+</html>

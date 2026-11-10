@@ -1,0 +1,15 @@
+{
+  "appId": "ir.dedhban.mycar",
+  "appName": "My-Car",
+  "webDir": "public",
+  "server": {
+    "url": "https://car.dedhban.ir",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "app": {
+    "name": "My-Car",
+    "version": "0.5.0",
+    "host": "0.0.0.0",
+    "port_app": 4441,
+    "port_ws": 4442,
+    "server_ip": "62.11.22.207"
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./database/app.db"
+  },
+  "features": {
+    "registration": true,
+    "vehicle_add": true,
+    "plate_ocr_photo": true,
+    "plate_manual": true,
+    "vehicle_photo_upload": true,
+    "profile": true,
+    "member_chat": true,
+    "social_feed": true,
+    "social_like": true,
+    "social_comment": true,
+    "social_emoji": true,
+    "forum": true,
+    "service_log": true,
+    "mechanic_role": true,
+    "admin_panel": true,
+    "admin_backup": true,
+    "external_db_connect": false
+  },
+  "security": {
+    "jwt_secret": "CHANGE_ME_IN_PRODUCTION",
+    "session_hours": 24
+  }
+}
